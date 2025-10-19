@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-Square Architects</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+:root {
+    /* Deep Navy/Charcoal Blue Palette */
+    --primary-color: #8BA6C1; /* Slate Blue Accent */
+    --secondary-color: #F0F0F0; /* Off-White Text */
+    --dark-bg: #1C2A38; /* Deep Charcoal Navy Main Background */
+    --light-dark-bg: #2B3B4C; /* Card/Element Background */
+    --font-main: 'Poppins', sans-serif;
+    --section-separator: 1px solid rgba(240, 240, 240, 0.1); 
+}
+body, html {
+    margin: 0; padding: 0; font-family: var(--font-main);
+    background: var(--dark-bg); 
+    scroll-behavior: smooth;
+}
+/* Splash Screen */
+#splash {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #212021; 
+    display: flex; justify-content: center;
+    align-items: center; z-index: 9999;
+}
+.logo { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.logo img { 
+    width: 220px; 
+    transform: translateX(-120vw); 
+    animation: slideFromLeft 1.5s forwards; 
+}
+/* UPDATED: Splash Screen text now uses the primary accent color for brand consistency */
+.logo span {
+    font-size: 50px; 
+    color: var(--primary-color); 
+    font-weight: bold; 
+    letter-spacing: 5px;
+    transform: translateX(120vw); animation: slideFromRight 1.5s forwards; animation-delay: 0.1s;
+}
+@keyframes slideFromLeft { to { transform: translateX(0); } }
+@keyframes slideFromRight { to { transform: translateX(0); } }
+#splash.fade-out { animation: fadeOut 0.8s forwards; animation-delay: 2s; }
+@keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+/* Navigation */
+nav {
+    position: fixed; top: 0; left: 0; width: 100%; padding: 15px 50px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(28, 42, 56, 0.95); 
+    color: var(--secondary-color); z-index: 1000; box-sizing: border-box;
+    border-bottom: 1px solid rgba(240, 240, 240, 0.1); 
+    transition: background 0.3s ease, border-bottom 0.3s ease;
+}
+nav.scrolled { 
+    background: var(--dark-bg); 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); 
+    border-bottom: none;
+}
+/* Logo Container */
+nav .nav-logo { 
+    display: flex; 
+    align-items: center; 
+}
+/* Logo Image */
+nav .nav-logo img {
+    height: 50px; 
+    width: auto;
+    vertical-align: middle; 
+    margin-right: 10px; 
+}
+/* Logo Text */
+nav .nav-logo span {
+    font-size: 24px; 
+    font-weight: 700; 
+    letter-spacing: 2px; 
+    color: var(--primary-color);
+}
+nav .nav-links { list-style: none; display: flex; gap: 40px; margin: 0; padding: 0; }
+nav .nav-links a {
+    text-decoration: none; color: var(--secondary-color); font-size: 15px;
+    transition: color 0.3s; font-weight: 400; position: relative; padding: 5px 0;
+}
+nav .nav-links a::after {
+    content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 50%;
+    transform: translateX(-50%); background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+nav .nav-links a:hover::after, nav .nav-links a:focus::after { width: 80%; } 
+nav .nav-links a:hover, nav .nav-links a:focus { color: var(--primary-color); outline: none; }
+.hamburger {
+    display: none; flex-direction: column; justify-content: space-around;
+    width: 30px; height: 25px; background: transparent; border: none;
+    cursor: pointer; padding: 0; z-index: 1001;
+}
+.hamburger .bar {
+    width: 100%; height: 3px; background-color: var(--secondary-color);
+    transition: all 0.3s ease-in-out;
+}
+.hamburger.active .bar:nth-child(1) { transform: translateY(11px) rotate(45deg); }
+.hamburger.active .bar:nth-child(2) { opacity: 0; }
+.hamburger.active .bar:nth-child(3) { transform: translateY(-11px) rotate(-45deg); }
+
+/* CURVED SLIDESHOW HERO */
+.hero {
+    position: relative; height: 85vh; 
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+    overflow: hidden; 
+    background: radial-gradient(circle at center, #1E3147 0%, #15202E 80%); 
+    border-bottom-left-radius: 50% 20%; border-bottom-right-radius: 50% 20%;
+    padding-bottom: 20px; 
+}
+.carousel {
+    position: relative; width: 80vw; height: 60vh; display: flex; justify-content: center; align-items: center;
+    perspective: 1000px;
+}
+.slide {
+    position: absolute; width: 400px; height: 250px; border-radius: 20px; background-size: cover;
+    background-position: center; box-shadow: 0 10px 40px rgba(0,0,0,0.4); transition: all 1.5s ease; opacity: 0;
+}
+.active { opacity: 1; transform: translateX(0) scale(1.2); z-index: 3; 
+    border: 3px solid var(--primary-color);
+}
+.prev, .next { opacity: 0.8; transform: translateX(-300px) scale(0.9); z-index: 2; }
+.next { transform: translateX(300px) scale(0.9); }
+.prev2, .next2 { opacity: 0.4; transform: translateX(-550px) scale(0.7); z-index: 1; }
+.next2 { transform: translateX(550px) scale(0.7); z-index:1; }
+
+.carousel-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(43, 59, 76, 0.7); 
+    color: var(--primary-color);
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 5; 
+    transition: background 0.3s, color 0.3s;
+}
+.carousel-btn:hover {
+    background: var(--light-dark-bg);
+    color: var(--secondary-color);
+}
+#prev-btn { left: 5%; }
+#next-btn { right: 5%; }
+
+.carousel-dots {
+    display: flex; gap: 10px; margin-top: 20px; 
+}
+.dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background-color: rgba(240, 240, 240, 0.4); 
+    cursor: pointer; transition: all 0.3s ease;
+}
+.dot.active-dot {
+    background-color: var(--primary-color);
+    transform: scale(1.3);
+}
+
+/* Hero Call to Action Button */
+.hero-cta {
+    margin-top: 40px;
+}
+/* Base style for CTA buttons */
+.hero-cta a, .hero-cta-style-button { 
+    display: inline-block;
+    text-decoration: none;
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    padding: 15px 35px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+.hero-cta a:hover, .hero-cta-style-button:hover {
+    background: #9EC0DC; 
+    transform: translateY(-2px);
+}
+
+
+/* Section Styling */
+section { 
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    color: var(--secondary-color); 
+    background: var(--dark-bg); 
+    box-sizing: border-box;
+    padding: 100px 20px; text-align: center; overflow: hidden; 
+    min-height: 85vh; 
+}
+
+#services, #featured-project, #testimonials, #contact {
+    border-top: var(--section-separator);
+}
+
+h2 { color: var(--primary-color); font-weight: 700; margin-bottom: 20px; }
+
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; width: 100%; max-width: 1100px; margin-top: 50px; }
+.service-card { 
+    background: var(--light-dark-bg); 
+    padding: 40px 30px; 
+    border-radius: 10px; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    border-left: 3px solid var(--primary-color); 
+} 
+.service-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+.about-content { display: flex; align-items: center; gap: 50px; max-width: 1100px; text-align: left; margin-top: 50px; }
+.about-image img { width: 100%; height: auto; border-radius: 50%; border: 5px solid var(--primary-color); }
+
+/* Featured Project Section Styling */
+#featured-project {
+    background: var(--light-dark-bg); /* Give this section a slight background lift */
+    min-height: auto; /* Allow content to dictate height */
+}
+.project-details-container {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    max-width: 1200px;
+    margin-top: 50px;
+    text-align: left;
+}
+.project-image-side {
+    flex: 1;
+    min-width: 40%;
+}
+.project-image-side img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+.project-info-side {
+    flex: 1.5;
+}
+.project-info-side p {
+    font-weight: 300;
+}
+.project-info-side ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 30px 0;
+    font-size: 1.1em;
+    font-weight: 300;
+}
+.project-info-side ul li {
+    margin-bottom: 10px;
+    border-bottom: 1px dotted rgba(240, 240, 240, 0.1);
+    padding-bottom: 5px;
+}
+.project-info-side ul li strong {
+    color: var(--primary-color);
+}
+
+
+/* Testimonials Section Styling */
+.testimonials-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 30px; 
+    max-width: 1200px;
+    margin-top: 50px;
+}
+.testimonial-card {
+    background: var(--light-dark-bg);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: left;
+    border-top: 5px solid var(--primary-color);
+}
+.testimonial-card p {
+    font-style: italic;
+    margin-bottom: 15px;
+    font-weight: 300;
+}
+.testimonial-card .client-name {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+/* Contact Section Styling Update */
+.contact-container { display: flex; gap: 40px; margin-top: 50px; flex-wrap: wrap; justify-content: center; }
+.contact-item a, .contact-item span { 
+    color: var(--secondary-color); 
+    text-decoration: none; 
+    transition: color 0.3s ease; 
+    font-weight: 500; /* Added: Bold the text for clarity */
+}
+.contact-item a:hover { color: var(--primary-color); }
+/* Added: Style for the new contact CTA button container */
+.contact-cta {
+    min-width: 100%; 
+    margin-top: 20px; 
+}
+
+
+/* Footer Styling */
+footer {
+    width: 100%;
+    padding: 20px 0;
+    background: var(--dark-bg);
+    color: rgba(240, 240, 240, 0.4);
+    text-align: center;
+    font-size: 0.85em;
+    border-top: 1px solid rgba(240, 240, 240, 0.05); 
+}
+
+#scrollTopBtn { 
+    display: none; position: fixed; bottom: 20px; right: 20px; z-index: 100; border: none; outline: none; 
+    background-color: var(--primary-color); 
+    color: var(--dark-bg); 
+    cursor: pointer; padding: 15px; border-radius: 50%; font-size: 18px; 
+    width: 50px; height: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+    transition: background-color 0.3s;
+}
+#scrollTopBtn:hover { background-color: #9EC0DC; } 
+@media (max-width:992px) { 
+    .project-details-container { flex-direction: column; text-align: center; }
+    .project-info-side { order: -1; text-align: center; }
+    .project-info-side ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .project-info-side ul li { border-bottom: none; }
+}
+@media (max-width:768px) { 
+    nav { padding:15px 20px; } 
+    .hamburger { display:flex; } 
+    .nav-links { 
+        display:none; flex-direction:column; position:absolute; top:100%; left:0; width:100%; 
+        background: var(--light-dark-bg); 
+        box-shadow: 0 10px 10px rgba(0,0,0,0.3);
+        padding: 10px 0;
+    } 
+    .nav-links li { text-align: center; padding: 10px 0; }
+    .nav-links.active{display:flex;} 
+    section { min-height: auto; padding: 80px 20px; } 
+    .carousel-btn { top: 35%; } 
+    .about-content { flex-direction: column; text-align: center; }
+    .project-info-side ul { flex-direction: column; }
+}
+
+/* end of styles */
+</style>
+</head>
+<body>
+
+<div id="splash">
+    <div class="logo">
+        <img src="nsquare.png" alt="N-Square Logo">
+        <span>ARCHITECTS</span>
+    </div>
+</div>
+
+<nav id="navbar">
+    <div class="nav-logo">
+        <img src="nsquare.png" alt="N-Square Architects Logo">
+        <span>N-Square Architects</span>
+    </div>
+    <button class="hamburger" id="hamburger-button" aria-label="Toggle navigation menu">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#featured-project">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+<section class="hero" id="home">
+    <button class="carousel-btn" id="prev-btn" aria-label="Previous slide">❮</button>
+    <button class="carousel-btn" id="next-btn" aria-label="Next slide">❯</button>
+
+    <div class="carousel">
+        <div class="slide" data-index="0" style="background-image:url('https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80')"></div>
+        <div class="slide" data-index="1" style="background-image:url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto-format&fit=crop&w=800&q=80')"></div>
+        <div class="slide" data-index="2" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto-format&fit=crop&w=800&q=80')"></div>
+        <div class="slide" data-index="3" style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto-format&fit=crop&w=800&q=80')"></div>
+        <div class="slide" data-index="4" style="background-image:url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto-format&fit=crop&w=800&q=80')"></div>
+    </div>
+    <div class="carousel-dots" id="carousel-dots">
+    </div>
+    <div class="hero-cta" data-aos="fade-up" data-aos-delay="500">
+        <a href="#contact">START YOUR PROJECT</a>
+    </div>
+</section>
+
+<section id="about">
+    <div class="about-content">
+        <div class="about-image" data-aos="fade-right">
+            <img src="profile pic.jpg" alt="[Your Name], Principal Architect">
+        </div>
+        <div class="about-text" data-aos="fade-left">
+            <h2>About N-Square</h2>
+            <p style="font-weight: 300;">
+                Founded in <strong>[Year]</strong> by <strong>[Your Name]</strong>, N-Square Architects was born from a desire to bring world-class, contemporary design to our local community in Mianwali.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="services">
+    <h2 data-aos="fade-up">Our Services</h2>
+    <div class="services-grid">
+        <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+            <h3>Architectural Design</h3>
+            <p>From initial concept sketches to detailed construction drawings, we provide comprehensive design services for residential and commercial projects.</p>
+        </div>
+        <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+            <h3>Interior Design</h3>
+            <p>We create beautiful and functional interiors that reflect your personality, from space planning and color selection to furniture and lighting.</p>
+        </div>
+        <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+            <h3>Project Supervision</h3>
+            <p>We oversee the construction process to ensure your project is built to the highest quality standards, on time, and within budget.</p>
+        </div>
+    </div>
+</section>
+
+---
+
+<section id="featured-project" style="background: var(--light-dark-bg);">
+    <h2 data-aos="fade-up">Featured Project: The Horizon Villa</h2>
+    <div class="project-details-container" data-aos="fade-up" data-aos-delay="200">
+        <div class="project-image-side">
+            <img src="slide1.jpg" alt="Image of The Horizon Villa">
+        </div>
+        <div class="project-info-side">
+            <p style="color: var(--primary-color); font-weight: 700; margin-top: 0;">Project Scope</p>
+            <p>A contemporary, light-filled residential project focused on sustainable design and seamless indoor-outdoor living, completed in 2023. This project showcases our expertise in modern aesthetics and efficient space utilization.</p>
+            <ul>
+                <li><strong>Area:</strong> 6,500 sq. ft.</li>
+                <li><strong>Location:</strong> DHA, Lahore</li>
+                <li><strong>Timeline:</strong> 14 months</li>
+                <li><strong>Status:</strong> Completed (2023)</li>
+            </ul>
+            <a href="portfolio.html" class="hero-cta-style-button">VIEW FULL PORTFOLIO</a> 
+        </div>
+    </div>
+</section>
+
+---
+
+<section id="testimonials">
+    <h2 data-aos="fade-up">Client Praise</h2>
+    <div class="testimonials-grid">
+        <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+            <p>"N-Square's innovative approach transformed our commercial space. They delivered a functional design that truly elevates our brand."</p>
+            <div class="client-name">— Ahmad K., Islamabad</div>
+        </div>
+        <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+            <p>"Professional, detail-oriented, and excellent communication. Our home project was complex, but the team handled every phase flawlessly."</p>
+            <div class="client-name">— Mrs. Fatima S., Lahore</div>
+        </div>
+        <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
+            <p>"They respected our budget while providing world-class design. We couldn't be happier with the final result of our new residence."</p>
+            <div class="client-name">— The Hassan Family, Mianwali</div>
+        </div>
+    </div>
+</section>
+
+---
+
+<section id="contact">
+    <h2 data-aos="fade-up">Get In Touch</h2>
+    <div class="contact-container" data-aos="fade-up" data-aos-delay="200">
+        <div class="contact-item"><a href="tel:+923336817861">Call: +92 333 6817861</a></div>
+        <div class="contact-item"><a href="mailto:contact@nsquarearchitects.com">Email: contact@nsquarearchitects.com</a></div>
+        
+        <div class="contact-item"><span>**Office:** 12-A Model Town, Lahore</span></div>
+        
+        <div class="contact-item"><span>**Hours:** Mon - Fri, 9:00 AM - 5:00 PM (PKT)</span></div>
+        
+        <div class="contact-item contact-cta" data-aos="fade-up" data-aos-delay="300">
+             <a href="contact-form.html" class="hero-cta-style-button">REQUEST A CONSULTATION</a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    © 2024 N-Square Architects. All rights reserved.
+</footer>
+
+<button id="scrollTopBtn" title="Go to top">↑</button>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+// AOS Initialization and general non-carousel logic (unchanged)
+AOS.init({ duration: 1000, once: true });
+
+const splash = document.getElementById('splash');
+if (sessionStorage.getItem('splashShown') === 'true') {
+    splash.style.display = 'none';
+} else {
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            splash.classList.add('fade-out');
+            sessionStorage.setItem('splashShown', 'true');
+        }, 2500);
+    });
+}
+
+window.addEventListener('load', () => {
+    const hamburger = document.getElementById('hamburger-button');
+    const navLinks = document.getElementById('nav-links');
+    const links = navLinks.querySelectorAll('a');
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    });
+    links.forEach(link => { 
+        link.addEventListener('click', () => { 
+            navLinks.classList.remove('active'); 
+            hamburger.classList.remove('active'); 
+        }); 
+    });
+
+    const navbar = document.getElementById('navbar');
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    window.onscroll = function() {
+        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            scrollTopBtn.style.display = "block";
+        } else {
+            scrollTopBtn.style.display = "none";
+        }
+    };
+    scrollTopBtn.addEventListener('click', () => { 
+        window.scrollTo({top:0, behavior:'smooth'}); 
+    });
+});
+
+// SLIDESHOW LOGIC (Curved Carousel)
+const slides = document.querySelectorAll('.slide');
+const dotsContainer = document.getElementById('carousel-dots');
+const total = slides.length;
+let index = 2; 
+let autoSlideInterval;
+
+function createDots() {
+    slides.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        dot.dataset.targetIndex = i; 
+        dotsContainer.appendChild(dot);
+
+        dot.addEventListener('click', function() {
+            const targetSlideIndex = parseInt(this.dataset.targetIndex);
+            let steps = targetSlideIndex - index;
+            if (Math.abs(steps) > total / 2) {
+                steps = steps > 0 ? steps - total : steps + total;
+            }
+            index = (index + steps + total) % total;
+            
+            updateSlides();
+            resetAutoSlide();
+        });
+    });
+}
+
+function updateSlides() {
+    slides.forEach(slide => slide.className = 'slide');
+    
+    slides[index].classList.add('active'); 
+    slides[(index - 1 + total) % total].classList.add('prev');
+    slides[(index + 1) % total].classList.add('next');
+    slides[(index - 2 + total) % total].classList.add('prev2');
+    slides[(index + 2) % total].classList.add('next2');
+
+    const dots = dotsContainer.querySelectorAll('.dot');
+    dots.forEach((dot, i) => {
+        dot.classList.remove('active-dot');
+        if (i === index) { 
+            dot.classList.add('active-dot');
+        }
+    });
+}
+
+function moveCarousel(direction) {
+    index = (index + direction + total) % total;
+    updateSlides();
+    resetAutoSlide();
+}
+
+document.getElementById('next-btn').addEventListener('click', () => moveCarousel(1));
+document.getElementById('prev-btn').addEventListener('click', () => moveCarousel(-1));
+
+function resetAutoSlide() {
+    clearInterval(autoSlideInterval);
+    autoSlideInterval = setInterval(() => moveCarousel(1), 3000); 
+}
+
+createDots(); 
+updateSlides(); 
+resetAutoSlide(); 
+</script>
+</body>
+</html>
